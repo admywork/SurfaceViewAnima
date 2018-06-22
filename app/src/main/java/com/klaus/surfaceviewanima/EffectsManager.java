@@ -14,7 +14,8 @@ import com.klaus.surfaceviewanima.Fireworm.FirewormDraw;
  */
 public class EffectsManager {
 
-    public static final int RAIN_EFFECTS = 0;
+    public static int framerate=60;
+
     public static final int FIREWORM_EFFECTS = 1;
 
     private static EffectsManager mInstances;
@@ -64,7 +65,6 @@ public class EffectsManager {
     private class DrawThread extends Thread {
 
         private Paint paint=new Paint();
-//        long t;
 
         @Override
         public void run() {
@@ -73,7 +73,6 @@ public class EffectsManager {
             // 无限循环绘制
             while (mEffectDraw!=null) {
                 try {
-//                    t = System.currentTimeMillis();
                     synchronized (mSurfaceHolder) {
                         canvas = mSurfaceHolder.lockCanvas();
                         if (canvas != null) {
@@ -90,8 +89,7 @@ public class EffectsManager {
                 }
                 try {
                     /**用于控制绘制帧率*/
-//                    Thread.sleep(Math.max(0, 50-(System.currentTimeMillis()-t)));
-                    Thread.sleep(10);
+                    Thread.sleep(1000/framerate);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
