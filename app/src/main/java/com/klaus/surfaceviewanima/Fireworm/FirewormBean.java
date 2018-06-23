@@ -122,45 +122,61 @@ public class FirewormBean extends IEffectBean {
         int times = 1;
         switch (lifeTime) {
             case 2:
-                times = random.nextInt(1) + 1;//1
+                times = random.nextInt(1) + 1;
                 break;
             case 4:
-                times = random.nextInt(2) + 1;//1～2
+                times = random.nextInt(2) + 1;
                 break;
             case 6:
-                times = random.nextInt(4) + 1;//1～4
+                times = random.nextInt(3) + 1;
                 break;
             case 8:
-                times = random.nextInt(6) + 1;//1～6
+                times = random.nextInt(4) + 1;
                 break;
             case 10:
-                times = random.nextInt(8) + 1;//1～8
+                times = random.nextInt(5) + 1;
                 break;
         }
+        times++;
         int maxAlpha = random.nextInt(30) + 225;//最大透明值;
-        float result = mPathPointList.size() * 1.00f / (times * 2);//透明度完成一次变化需要经过多少点
+        int minAlpha = random.nextInt(155) + 100;//最小透明值;
+        float result = mPathPointList.size() * 1.00f / (times * 2);//透明度完成一次变化需要经过多少点;其中第一次由0变换到minAlpha和最后一次由minAlpha变换到0需要做特别的计算
         float add = maxAlpha * 1.00f / result;
+        float firstAdd = minAlpha / result;
         float alpha = 0.00f;
         int j = 0;
-        for (int i = 0; i < mPathPointList.size(); i++) {
-            if (j % 2 == 0) {
+        //第一次由0至最小透明度
+        for (int i = 0; i < result; i++) {
+            alpha = alpha + firstAdd;
+            list.add((int) alpha);
+        }
+        boolean isAdd = true;
+        for (int i = (int) result; i < mPathPointList.size() - result; i++) {
+            if (isAdd) {
                 alpha = alpha + add;
-                if (alpha > maxAlpha) {
+                if (alpha >= maxAlpha) {
                     list.add(maxAlpha);
-                    j++;
-                    continue;
+                    isAdd = false;
                 } else {
                     list.add((int) alpha);
                 }
             } else {
                 alpha = alpha - add;
-                if (alpha < 0) {
-                    list.add(0);
-                    j++;
-                    continue;
+                if (alpha < minAlpha) {
+                    list.add(minAlpha);
+                    isAdd = true;
                 } else {
                     list.add((int) alpha);
                 }
+            }
+        }
+        //最后一次由最大透明度到0
+        for (int i = (int) (mPathPointList.size() - result); i < mPathPointList.size(); i++) {
+            alpha = alpha - firstAdd;
+            if (alpha <= 0) {
+                list.add(0);
+            } else {
+                list.add((int) alpha);
             }
         }
         return list;

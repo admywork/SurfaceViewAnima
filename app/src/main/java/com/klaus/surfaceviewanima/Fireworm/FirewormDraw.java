@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -26,11 +27,11 @@ public class FirewormDraw implements IEffectDraw {
     private static final int ADD_FIREWORM = 0;
     private final FirewormHandler mFirewormHandler;
     private Random mRandom = new Random();
-    private Bitmap mBitmap;
+    private Bitmap[] mBitmap = new Bitmap[5];
 
     private class FirewormHandler extends Handler {
 
-        public FirewormHandler(Looper looper){
+        public FirewormHandler(Looper looper) {
             super(looper);
         }
 
@@ -39,7 +40,7 @@ public class FirewormDraw implements IEffectDraw {
             super.handleMessage(msg);
             switch (msg.what) {
                 case ADD_FIREWORM:
-                    addFirewormBean(mBitmap);
+                    addFirewormBean(mBitmap[mRandom.nextInt(mBitmap.length)]);
                     break;
             }
         }
@@ -54,12 +55,15 @@ public class FirewormDraw implements IEffectDraw {
         mHandlerThread.start();
         mFirewormBeanList = new ArrayList<>();
         mFirewormHandler = new FirewormHandler(mHandlerThread.getLooper());
-        mBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.star,new BitmapFactory.Options());
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.star, new BitmapFactory.Options());
+        for (int i = 0; i < mBitmap.length; i++) {
+            mBitmap[i]=getScale(bitmap);
+        }
         mFirewormHandler.sendEmptyMessageDelayed(ADD_FIREWORM, mRandom.nextInt(2000));
     }
 
     public void addFirewormBean(Bitmap mBitmap) {
-        if(mFirewormBeanList.size()<maxNum){
+        if (mFirewormBeanList.size() < maxNum) {
             mFirewormBeanList.add(new FirewormBean(mContext, mBitmap));
             mFirewormHandler.sendEmptyMessageDelayed(ADD_FIREWORM, mRandom.nextInt(2000));
         }
@@ -75,5 +79,13 @@ public class FirewormDraw implements IEffectDraw {
     @Override
     public void onSizeChanged(Context context, int w, int h) {
 
+    }
+
+    private Bitmap getScale(Bitmap bitmap) {
+        Matrix matrix = new Matrix();
+        float scale = mRandom.nextFloat()+0.3f;
+        matrix.postScale(scale, scale);
+        Bitmap resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        return resizeBmp;
     }
 }
