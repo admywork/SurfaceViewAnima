@@ -21,7 +21,7 @@ import java.util.Random;
  */
 public class FirewormDraw implements IEffectDraw {
 
-    private int maxNum = 15;
+    private int maxNum = 10;
 
     private static final int ADD_FIREWORM = 0;
     private final FirewormHandler mFirewormHandler;

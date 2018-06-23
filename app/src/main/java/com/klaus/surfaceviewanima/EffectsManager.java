@@ -14,7 +14,7 @@ import com.klaus.surfaceviewanima.Fireworm.FirewormDraw;
  */
 public class EffectsManager {
 
-    public static int framerate=60;
+    public static int framerate=50;
 
     public static final int FIREWORM_EFFECTS = 1;
 

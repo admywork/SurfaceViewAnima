@@ -1,14 +1,12 @@
 package com.klaus.surfaceviewanima.Fireworm;
 
-import android.animation.TypeEvaluator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.util.Log;
 
 import com.klaus.surfaceviewanima.CommonUtils;
 import com.klaus.surfaceviewanima.EffectsManager;
@@ -39,9 +37,9 @@ public class FirewormBean extends IEffectBean {
     private int mScreenWidth;
 
     /**
-     * 控制区域的宽度(正方形)
+     * 萤火虫左右飘动最大的距离
      */
-    private int mWidth;
+    private int mPathMaxWidth;
 
     /**
      * 起点,控制点0,控制点1,终点,当前坐标
@@ -72,12 +70,13 @@ public class FirewormBean extends IEffectBean {
     private int lifeTime;
 
     private ArrayList<Point> mPathPointList;
+    private ArrayList<Integer> mAlphaList;
     private int currentIndex;
 
     public FirewormBean(Context context, Bitmap bitmap) {
         mScreenHeight = CommonUtils.getScreenHeight(context);
         mScreenWidth = CommonUtils.getScreenWidth(context);
-        mWidth = mScreenWidth / 6;
+        mPathMaxWidth = mScreenWidth / 6;
         random = new Random();
         mBitmap = bitmap;
         reset();
@@ -85,28 +84,97 @@ public class FirewormBean extends IEffectBean {
 
 
     public void reset() {
+        mStartPoint = new Point(random.nextInt(mScreenWidth), random.nextInt(mScreenHeight / 4 * 3) + mScreenHeight / 4);
+        mEndPoint = new Point(random.nextInt(mPathMaxWidth) + mStartPoint.x - mPathMaxWidth / 2, random.nextInt(mStartPoint.y));
         lifeTime = random.nextInt(maxTime - minTime + 1) + minTime;
-        mStartPoint = new Point(random.nextInt(mScreenWidth), mScreenHeight);
-        mCurrentPoint = mStartPoint;
-        currentIndex=0;
-        mEndPoint = new Point(random.nextInt(mWidth) + mStartPoint.x - mWidth / 2, 0 - mBitmap.getHeight());
-        mRect0 = new Rect(mStartPoint.x - mWidth, mScreenHeight / 4 * 3 - mWidth / 2, mStartPoint.x, mScreenHeight / 4 * 3 + mWidth / 2);
-        mRect1 = new Rect(mStartPoint.x, mScreenHeight / 4 - mWidth / 2, mStartPoint.x + mWidth, mScreenHeight / 4 + mWidth / 2);
+        float heightPercentage = (mStartPoint.y - mEndPoint.y) / (mScreenHeight * 1.0f);
+        Log.e(TAG, heightPercentage + "");
+        if (heightPercentage <= 0.2) {
+            lifeTime = 2;
+        } else if (0.2 < heightPercentage && heightPercentage <= 0.4) {
+            lifeTime = 4;
+        } else if (0.4 < heightPercentage && heightPercentage <= 0.6) {
+            lifeTime = 6;
+        } else if (0.6 < heightPercentage && heightPercentage <= 0.8) {
+            lifeTime = 8;
+        } else if (0.8 < heightPercentage && heightPercentage <= 1.0) {
+            lifeTime = 10;
+        }
+        currentIndex = 0;
+        mRect0 = new Rect(mStartPoint.x - (Math.abs(mStartPoint.x - mEndPoint.x)) / 2,
+                (mStartPoint.y + mEndPoint.y) / 2,
+                mStartPoint.x + (Math.abs(mStartPoint.x - mEndPoint.x)) / 2,
+                mStartPoint.y);
+        mRect1 = new Rect(mEndPoint.x - (Math.abs(mStartPoint.x - mEndPoint.x)) / 2,
+                mEndPoint.y,
+                mEndPoint.x + (Math.abs(mStartPoint.x - mEndPoint.x)) / 2,
+                (mStartPoint.y + mEndPoint.y) / 2);
         mControlPoint0 = getPointFromRect(mRect0);
         mControlPoint1 = getPointFromRect(mRect1);
         mPathPointList = getPathPointList(mStartPoint, mEndPoint, mControlPoint0, mControlPoint1);
+        mAlphaList = getAlphaList();
         isEnd = false;
+    }
+
+
+    private ArrayList<Integer> getAlphaList() {
+        ArrayList<Integer> list = new ArrayList<>();
+        int times = 1;
+        switch (lifeTime) {
+            case 2:
+                times = random.nextInt(1) + 1;//1
+                break;
+            case 4:
+                times = random.nextInt(2) + 1;//1～2
+                break;
+            case 6:
+                times = random.nextInt(4) + 1;//1～4
+                break;
+            case 8:
+                times = random.nextInt(6) + 1;//1～6
+                break;
+            case 10:
+                times = random.nextInt(8) + 1;//1～8
+                break;
+        }
+        int maxAlpha = random.nextInt(30) + 225;//最大透明值;
+        float result = mPathPointList.size() * 1.00f / (times * 2);//透明度完成一次变化需要经过多少点
+        float add = maxAlpha * 1.00f / result;
+        float alpha = 0.00f;
+        int j = 0;
+        for (int i = 0; i < mPathPointList.size(); i++) {
+            if (j % 2 == 0) {
+                alpha = alpha + add;
+                if (alpha > maxAlpha) {
+                    list.add(maxAlpha);
+                    j++;
+                    continue;
+                } else {
+                    list.add((int) alpha);
+                }
+            } else {
+                alpha = alpha - add;
+                if (alpha < 0) {
+                    list.add(0);
+                    j++;
+                    continue;
+                } else {
+                    list.add((int) alpha);
+                }
+            }
+        }
+        return list;
     }
 
     public void onDraw(Canvas canvas, Paint paint) {
         if (mBitmap != null && !isEnd) {
-            paint.setAlpha(alpha);
             currentIndex++;
             if (currentIndex > mPathPointList.size() - 1) {
                 isEnd = true;
                 reset();
                 return;
             }
+            paint.setAlpha(mAlphaList.get(currentIndex));
             mCurrentPoint = mPathPointList.get(currentIndex);
             canvas.drawBitmap(mBitmap, mCurrentPoint.x, mCurrentPoint.y, paint);
         }
@@ -114,8 +182,12 @@ public class FirewormBean extends IEffectBean {
 
 
     private Point getPointFromRect(Rect rect) {
-        int x = random.nextInt(rect.width()) + rect.left;
-        int y = random.nextInt(rect.height()) + rect.top;
+        if (rect.width() <= 0) {
+            Log.e(TAG, rect.left + "--" + rect.top + "--" + rect.right + "--" + rect.bottom);
+        }
+        int x = random.nextInt(rect.width() + 1) + rect.left;
+        int y = random.nextInt(rect.height() + 1) + rect.top;
+
         return new Point(x, y);
     }
 
