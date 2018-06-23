@@ -88,6 +88,7 @@ public class FirewormBean extends IEffectBean {
         lifeTime = random.nextInt(maxTime - minTime + 1) + minTime;
         mStartPoint = new Point(random.nextInt(mScreenWidth), mScreenHeight);
         mCurrentPoint = mStartPoint;
+        currentIndex=0;
         mEndPoint = new Point(random.nextInt(mWidth) + mStartPoint.x - mWidth / 2, 0 - mBitmap.getHeight());
         mRect0 = new Rect(mStartPoint.x - mWidth, mScreenHeight / 4 * 3 - mWidth / 2, mStartPoint.x, mScreenHeight / 4 * 3 + mWidth / 2);
         mRect1 = new Rect(mStartPoint.x, mScreenHeight / 4 - mWidth / 2, mStartPoint.x + mWidth, mScreenHeight / 4 + mWidth / 2);
