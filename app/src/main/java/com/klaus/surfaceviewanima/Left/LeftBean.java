@@ -67,7 +67,6 @@ public class LeftBean extends IEffectBean {
     private int lifeTime;
 
     private ArrayList<Point> mPathPointList;
-    private ArrayList<Integer> mAlphaList;
     private int currentIndex;
 
     public LeftBean(Context context, Bitmap bitmap) {
@@ -81,8 +80,12 @@ public class LeftBean extends IEffectBean {
 
 
     public void reset() {
-        mStartPoint = new Point(random.nextInt(mScreenWidth), random.nextInt(mScreenHeight / 4 * 3) + mScreenHeight / 4);
-        mEndPoint = new Point(random.nextInt(mPathMaxWidth) + mStartPoint.x - mPathMaxWidth / 2, random.nextInt(mStartPoint.y));
+        if(random.nextFloat()<0.3){
+            mStartPoint = new Point(random.nextInt(mScreenWidth/4*3)+mScreenWidth/2, 0);
+            mEndPoint = new Point((mStartPoint.x-mScreenWidth)+(-mScreenWidth/4+random.nextInt(mScreenWidth/2)), random.nextInt(mStartPoint.y));
+        }else{
+            mStartPoint = new Point(mScreenWidth, random.nextInt(mScreenHeight/4*3));
+        }
         lifeTime = random.nextInt(maxTime - minTime + 1) + minTime;
         float heightPercentage = (mStartPoint.y - mEndPoint.y) / (mScreenHeight * 1.0f);
         Log.e(TAG, heightPercentage + "");
@@ -98,18 +101,11 @@ public class LeftBean extends IEffectBean {
             lifeTime = 8;
         }
         currentIndex = 0;
-        mRect0 = new Rect(mStartPoint.x - (Math.abs(mStartPoint.x - mEndPoint.x)) / 2,
-                (mStartPoint.y + mEndPoint.y) / 2,
-                mStartPoint.x + (Math.abs(mStartPoint.x - mEndPoint.x)) / 2,
-                mStartPoint.y);
-        mRect1 = new Rect(mEndPoint.x - (Math.abs(mStartPoint.x - mEndPoint.x)) / 2,
-                mEndPoint.y,
-                mEndPoint.x + (Math.abs(mStartPoint.x - mEndPoint.x)) / 2,
-                (mStartPoint.y + mEndPoint.y) / 2);
+        mRect0 = new Rect(0,0,mScreenWidth,mScreenHeight);
+        mRect1 = new Rect(0,0,mScreenWidth,mScreenHeight);
         mControlPoint0 = getPointFromRect(mRect0);
         mControlPoint1 = getPointFromRect(mRect1);
         mPathPointList = getPathPointList(mStartPoint, mEndPoint, mControlPoint0, mControlPoint1);
-        mAlphaList = getAlphaList();
         isEnd = false;
     }
 
@@ -187,7 +183,7 @@ public class LeftBean extends IEffectBean {
                 reset();
                 return;
             }
-            paint.setAlpha(mAlphaList.get(currentIndex));
+//            paint.setAlpha(mAlphaList.get(currentIndex));
             mCurrentPoint = mPathPointList.get(currentIndex);
             canvas.drawBitmap(mBitmap, mCurrentPoint.x, mCurrentPoint.y, paint);
         }

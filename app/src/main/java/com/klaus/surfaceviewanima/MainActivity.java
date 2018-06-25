@@ -13,6 +13,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mEffectView=findViewById(R.id.ev);
         EffectsManager.getInstance().setEffectView(mEffectView);
-        EffectsManager.getInstance().setEffect(EffectsManager.LEFT_EFFECTS,this);
+        EffectsManager.getInstance().setEffect(EffectsManager.FIREWORM_EFFECTS,this);
     }
 }

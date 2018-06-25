@@ -44,7 +44,7 @@ public class LeftDraw implements IEffectDraw {
         }
     }
 
-    private ArrayList<FirewormBean> mLeftBeanList;
+    private ArrayList<LeftBean> mLeftBeanList;
     private Context mContext;
 
     public LeftDraw(Context context) {
@@ -62,7 +62,7 @@ public class LeftDraw implements IEffectDraw {
 
     public void addFirewormBean(Bitmap mBitmap) {
         if (mLeftBeanList.size() < maxNum) {
-            mLeftBeanList.add(new FirewormBean(mContext, mBitmap));
+            mLeftBeanList.add(new LeftBean(mContext, mBitmap));
             mFirewormHandler.sendEmptyMessageDelayed(ADD_FIREWORM, mRandom.nextInt(2000));
         }
     }

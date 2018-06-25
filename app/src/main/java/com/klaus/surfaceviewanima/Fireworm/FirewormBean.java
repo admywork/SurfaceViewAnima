@@ -3,6 +3,7 @@ package com.klaus.surfaceviewanima.Fireworm;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -54,6 +55,7 @@ public class FirewormBean extends IEffectBean {
      * icon
      */
     private Bitmap mBitmap;
+    private Bitmap mOriginBitmap;
     /**
      * 产生随机数
      */
@@ -78,12 +80,13 @@ public class FirewormBean extends IEffectBean {
         mScreenWidth = CommonUtils.getScreenWidth(context);
         mPathMaxWidth = mScreenWidth / 6;
         random = new Random();
-        mBitmap = bitmap;
+        mOriginBitmap=bitmap;
         reset();
     }
 
 
     public void reset() {
+        mBitmap = getScale(mOriginBitmap);
         mStartPoint = new Point(random.nextInt(mScreenWidth), random.nextInt(mScreenHeight / 4 * 3) + mScreenHeight / 4);
         mEndPoint = new Point(random.nextInt(mPathMaxWidth) + mStartPoint.x - mPathMaxWidth / 2, random.nextInt(mStartPoint.y));
         lifeTime = random.nextInt(maxTime - minTime + 1) + minTime;
@@ -139,7 +142,7 @@ public class FirewormBean extends IEffectBean {
         }
         times++;
         int maxAlpha = random.nextInt(30) + 225;//最大透明值;
-        int minAlpha = random.nextInt(155) + 100;//最小透明值;
+        int minAlpha = random.nextInt(50) + 100;//最小透明值;
         float result = mPathPointList.size() * 1.00f / (times * 2);//透明度完成一次变化需要经过多少点;其中第一次由0变换到minAlpha和最后一次由minAlpha变换到0需要做特别的计算
         float add = maxAlpha * 1.00f / result;
         float firstAdd = minAlpha / result;
@@ -227,5 +230,13 @@ public class FirewormBean extends IEffectBean {
             arrayList.add(point);
         }
         return arrayList;
+    }
+
+    private Bitmap getScale(Bitmap bitmap) {
+        Matrix matrix = new Matrix();
+        float scale = random.nextFloat();
+        matrix.postScale(scale, scale);
+        Bitmap resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        return resizeBmp;
     }
 }
