@@ -80,7 +80,7 @@ public class FirewormBean extends IEffectBean {
         mScreenWidth = CommonUtils.getScreenWidth(context);
         mPathMaxWidth = mScreenWidth / 6;
         random = new Random();
-        mOriginBitmap=bitmap;
+        mOriginBitmap = bitmap;
         reset();
     }
 
@@ -141,8 +141,8 @@ public class FirewormBean extends IEffectBean {
                 break;
         }
         times++;
-        int maxAlpha = random.nextInt(30) + 225;//最大透明值;
-        int minAlpha = random.nextInt(50) + 100;//最小透明值;
+        int maxAlpha = random.nextInt(55) + 200;//最大透明值;
+        int minAlpha = random.nextInt(50) + 70;//最小透明值;
         float result = mPathPointList.size() * 1.00f / (times * 2);//透明度完成一次变化需要经过多少点;其中第一次由0变换到minAlpha和最后一次由minAlpha变换到0需要做特别的计算
         float add = maxAlpha * 1.00f / result;
         float firstAdd = minAlpha / result;
@@ -201,11 +201,11 @@ public class FirewormBean extends IEffectBean {
 
 
     private Point getPointFromRect(Rect rect) {
-        if (rect.width() <= 0) {
+        if (rect.width() <= 0 || rect.height() <= 0) {
             Log.e(TAG, rect.left + "--" + rect.top + "--" + rect.right + "--" + rect.bottom);
         }
-        int x = random.nextInt(rect.width() + 1) + rect.left;
-        int y = random.nextInt(rect.height() + 1) + rect.top;
+        int x = random.nextInt(Math.abs(rect.width()) + 1) + rect.left;
+        int y = random.nextInt(Math.abs(rect.height()) + 1) + rect.top;
 
         return new Point(x, y);
     }
@@ -232,11 +232,17 @@ public class FirewormBean extends IEffectBean {
         return arrayList;
     }
 
+    private float[] scaleFloat = new float[]{0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f};
+
     private Bitmap getScale(Bitmap bitmap) {
         Matrix matrix = new Matrix();
         float scale = random.nextFloat();
         matrix.postScale(scale, scale);
-        Bitmap resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        width = width == 0 ? width + 1 : width;
+        height = height == 0 ? height + 1 : height;
+        Bitmap resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
         return resizeBmp;
     }
 }
