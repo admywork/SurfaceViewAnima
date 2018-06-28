@@ -8,7 +8,7 @@ import android.graphics.PorterDuff;
 import android.view.SurfaceHolder;
 
 import com.klaus.surfaceviewanima.Fireworm.FirewormDraw;
-import com.klaus.surfaceviewanima.Left.LeftDraw;
+import com.klaus.surfaceviewanima.Left.FlowerDraw;
 
 /**
  * Created by klaus on 2018/6/20.
@@ -55,7 +55,7 @@ public class EffectsManager {
                 mEffectDraw = new FirewormDraw(context);
                 break;
             case LEFT_EFFECTS:
-                mEffectDraw = new LeftDraw(context);
+                mEffectDraw = new FlowerDraw(context);
                 break;
         }
         mDrawThread=new DrawThread();
@@ -86,9 +86,6 @@ public class EffectsManager {
                 try {
                     synchronized (mSurfaceHolder) {
                         canvas = mSurfaceHolder.lockCanvas();
-                        if(mEffectDraw instanceof LeftDraw){
-                            canvas.rotate(45+180,mScreenWidth/2,mScreenHeight/2);
-                        }
                         if (canvas != null) {
                             canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
                             mEffectDraw.onDraw(canvas,paint);
